@@ -1,479 +1,297 @@
 
-/* ==========================================
-   HIRESCAN AI - ADVANCED JAVASCRIPT
-   Resume Upload, Validation and Preview
-========================================== */
+const API_URL = "https://ai-resume-screening-liart.vercel.app/api/screen";
+const MAX_FILES = 100;
 
-
-/* ==========================================
-   1. GET HTML ELEMENTS
-========================================== */
+let selectedResumes = [];
+let screeningResults = [];
 
 const resumeInput = document.getElementById("resumeFiles");
 const jobDescription = document.getElementById("jobDescription");
-
 const fileCount = document.getElementById("fileCount");
 const uploadMessage = document.getElementById("uploadMessage");
-const selectedFilesContainer = document.getElementById("selectedFiles");
-
+const selectedFiles = document.getElementById("selectedFiles");
 const screenButton = document.getElementById("screenButton");
-
 const resultsTableBody = document.getElementById("resultsTableBody");
-
-const previewSection = document.getElementById("resumePreviewSection");
-const previewFileName = document.getElementById("previewFileName");
-const previewCandidateScore = document.getElementById("previewCandidateScore");
-const resumeViewer = document.getElementById("resumeViewer");
-const closePreview = document.getElementById("closePreview");
-
+const totalCandidates = document.getElementById("totalCandidates");
+const strongMatches = document.getElementById("strongMatches");
+const averageScore = document.getElementById("averageScore");
 const exportButton = document.getElementById("exportButton");
 
-
-/* ==========================================
-   2. WEBSITE SETTINGS
-========================================== */
-
-const MAX_RESUMES = 100;
-
-const ALLOWED_EXTENSIONS = ["pdf", "docx"];
-
-let selectedResumes = [];
-
-let currentPreviewURL = null;
-
-
-/* ==========================================
-   3. CHECK FILE EXTENSION
-========================================== */
-
-function isValidResume(file) {
-
-    const extension = file.name
-        .split(".")
-        .pop()
-        .toLowerCase();
-
-    return ALLOWED_EXTENSIONS.includes(extension);
+function showMessage(message, isError = false) {
+  if (!uploadMessage) return;
+  uploadMessage.textContent = message;
+  uploadMessage.style.color = isError ? "#ff6262" : "#39d353";
 }
 
+function updateFileList() {
+  if (fileCount) {
+    fileCount.textContent = `${selectedResumes.length} resume(s) selected`;
+  }
 
-/* ==========================================
-   4. UPDATE RESUME COUNT
-========================================== */
+  if (!selectedFiles) return;
 
-function updateFileCount() {
+  selectedFiles.innerHTML = "";
 
-    fileCount.textContent =
-        `${selectedResumes.length} / ${MAX_RESUMES} resumes selected`;
+  selectedResumes.forEach((file, index) => {
+    const item = document.createElement("div");
+    item.style.cssText =
+      "display:flex;justify-content:space-between;align-items:center;padding:8px;margin:5px 0;background:#151515;border-radius:6px;color:white;";
 
-}
+    const name = document.createElement("span");
+    name.textContent = file.name;
 
+    const remove = document.createElement("button");
+    remove.textContent = "Remove";
+    remove.type = "button";
+    remove.style.cssText =
+      "background:#252525;color:#39d353;border:1px solid #39d353;padding:5px 10px;border-radius:5px;cursor:pointer;";
 
-/* ==========================================
-   5. SYNCHRONISE FILE INPUT
-========================================== */
-
-function syncFileInput() {
-
-    const dataTransfer = new DataTransfer();
-
-    selectedResumes.forEach(file => {
-        dataTransfer.items.add(file);
+    remove.addEventListener("click", () => {
+      selectedResumes.splice(index, 1);
+      updateFileList();
     });
 
-    resumeInput.files = dataTransfer.files;
-
+    item.append(name, remove);
+    selectedFiles.appendChild(item);
+  });
 }
 
-
-/* ==========================================
-   6. DISPLAY SELECTED RESUMES
-========================================== */
-
-function displaySelectedFiles() {
-
-    selectedFilesContainer.replaceChildren();
-
-    selectedResumes.forEach((file, index) => {
-
-        const fileRow = document.createElement("div");
-        fileRow.className = "selected-file";
-
-        const fileName = document.createElement("span");
-        fileName.className = "selected-file-name";
-
-        fileName.textContent =
-            `📄 ${file.name}`;
-
-        const removeButton = document.createElement("button");
-
-        removeButton.type = "button";
-        removeButton.className = "remove-file";
-        removeButton.textContent = "Remove";
-
-        removeButton.addEventListener("click", () => {
-
-            removeResume(index);
-
-        });
-
-        fileRow.append(fileName, removeButton);
-
-        selectedFilesContainer.appendChild(fileRow);
-
-    });
-
-    updateFileCount();
-
-}
-
-
-/* ==========================================
-   7. REMOVE INDIVIDUAL RESUME
-========================================== */
-
-function removeResume(index) {
-
-    const removedFile = selectedResumes[index];
-
-    selectedResumes.splice(index, 1);
-
-    // Close preview if the removed file is being viewed.
-
-    if (
-        currentPreviewURL &&
-        previewFileName.textContent === removedFile.name
-    ) {
-        closeResumePreview();
-    }
-
-    syncFileInput();
-
-    displaySelectedFiles();
-
-    uploadMessage.textContent =
-        "Resume removed successfully.";
-
-}
-
-
-/* ==========================================
-   8. HANDLE RESUME UPLOAD
-========================================== */
-
-resumeInput.addEventListener("change", function () {
-
-    const incomingFiles = Array.from(this.files);
-
-    let addedCount = 0;
-    let invalidCount = 0;
-    let limitReached = false;
-
-    incomingFiles.forEach(file => {
-
-        // Check PDF and DOCX formats.
-
-        if (!isValidResume(file)) {
-
-            invalidCount++;
-            return;
-
-        }
-
-        // Avoid duplicate file selections.
-
-        const alreadyExists = selectedResumes.some(existingFile => {
-
-            return (
-                existingFile.name === file.name &&
-                existingFile.size === file.size &&
-                existingFile.lastModified === file.lastModified
-            );
-
-        });
-
-        if (alreadyExists) {
-            return;
-        }
-
-        // Enforce the 100-resume limit.
-
-        if (selectedResumes.length >= MAX_RESUMES) {
-
-            limitReached = true;
-            return;
-
-        }
-
-        selectedResumes.push(file);
-
-        addedCount++;
-
-    });
-
-
-    // Update file input.
-
-    syncFileInput();
-
-    // Update selected resume list.
-
-    displaySelectedFiles();
-
-
-    // Show upload messages.
-
-    let messages = [];
-
-    if (addedCount > 0) {
-
-        messages.push(
-            `${addedCount} resume(s) added successfully.`
-        );
-
-    }
-
-    if (invalidCount > 0) {
-
-        messages.push(
-            `${invalidCount} invalid file(s) ignored. Upload PDF or DOCX files only.`
-        );
-
-    }
-
-    if (limitReached) {
-
-        messages.push(
-            "Maximum limit reached. You can upload only 100 resumes per session."
-        );
-
-    }
-
-    uploadMessage.textContent =
-        messages.join(" ");
-
-    // Allow selecting the same file again after removal.
-
-    resumeInput.value = "";
-
-});
-
-
-/* ==========================================
-   9. OPEN PDF RESUME PREVIEW
-========================================== */
-
-function openResumePreview(file) {
-
-    closePreview.disabled = false;
-
-    // Close previous preview URL.
-
-    if (currentPreviewURL) {
-
-        URL.revokeObjectURL(currentPreviewURL);
-
-        currentPreviewURL = null;
-
-    }
-
-    currentPreviewURL = URL.createObjectURL(file);
-
-    previewFileName.textContent = file.name;
-
-    previewCandidateScore.textContent =
-        "AI screening score will appear after screening.";
-
-    resumeViewer.replaceChildren();
-
-    const extension = file.name
-        .split(".")
-        .pop()
-        .toLowerCase();
-
-
-    // PDF preview.
-
-    if (extension === "pdf") {
-
-        const pdfViewer = document.createElement("iframe");
-
-        pdfViewer.src = currentPreviewURL;
-
-        pdfViewer.title = "Candidate Resume PDF Preview";
-
-        pdfViewer.setAttribute("type", "application/pdf");
-
-        resumeViewer.appendChild(pdfViewer);
-
-    }
-
-    // DOCX preview will be connected using a document-reading library.
-
-    else if (extension === "docx") {
-
-        const message = document.createElement("p");
-
-        message.textContent =
-            "DOCX preview will be available after connecting the document preview library.";
-
-        resumeViewer.appendChild(message);
-
-    }
-
-    previewSection.hidden = false;
-
-    previewSection.scrollIntoView({
-        behavior: "smooth",
-        block: "start"
-    });
-
-}
-
-
-/* ==========================================
-   10. CLOSE RESUME PREVIEW
-========================================== */
-
-function closeResumePreview() {
-
-    if (currentPreviewURL) {
-
-        URL.revokeObjectURL(currentPreviewURL);
-
-        currentPreviewURL = null;
-
-    }
-
-    resumeViewer.replaceChildren();
-
-    previewSection.hidden = true;
-
-}
-
-
-closePreview.addEventListener("click", closeResumePreview);
-
-
-/* ==========================================
-   11. VALIDATE JOB DESCRIPTION
-========================================== */
-
-function validateJobDescription() {
-
-    const jd = jobDescription.value.trim();
-
-    if (!jd) {
-
-        alert("Please enter a Job Description.");
-
-        jobDescription.focus();
-
-        return false;
-
-    }
-
-    if (jd.length < 30) {
-
-        alert(
-            "Please enter a more detailed Job Description for accurate screening."
-        );
-
-        jobDescription.focus();
-
-        return false;
-
-    }
-
-    return true;
-
-}
-
-
-/* ==========================================
-   12. SCREEN RESUMES BUTTON
-========================================== */
-
-screenButton.addEventListener("click", function () {
-
-    // Validate JD.
-
-    if (!validateJobDescription()) {
-        return;
-    }
-
-    // Check uploaded resumes.
-
-    if (selectedResumes.length === 0) {
-
-        alert("Please upload at least one resume.");
-
-        return;
-
-    }
-
-    // Check resume limit.
-
-    if (selectedResumes.length > MAX_RESUMES) {
-
-        alert("Maximum 100 resumes are allowed.");
-
-        return;
-
-    }
-
-
-    // AI backend is not connected yet.
-
-    alert(
-        "Your Job Description and " +
-        selectedResumes.length +
-        " resumes are ready.\n\n" +
-        "The AI screening engine will be connected in the next development stage."
+if (resumeInput) {
+  resumeInput.addEventListener("change", () => {
+    const incoming = Array.from(resumeInput.files || []);
+    const validFiles = incoming.filter(file =>
+      /\.(pdf|docx)$/i.test(file.name)
     );
 
-});
+    const invalidCount = incoming.length - validFiles.length;
+    const available = MAX_FILES - selectedResumes.length;
 
+    selectedResumes.push(...validFiles.slice(0, available));
 
-/* ==========================================
-   13. VIEW RESUME BUTTON FUNCTION
-========================================== */
-
-function viewResume(index) {
-
-    const file = selectedResumes[index];
-
-    if (!file) {
-        return;
+    if (invalidCount > 0) {
+      showMessage("Only PDF and DOCX files are accepted.", true);
+    } else if (validFiles.length > available) {
+      showMessage("Maximum 100 resumes allowed.", true);
+    } else {
+      showMessage("Resumes added successfully.");
     }
 
-    openResumePreview(file);
-
+    resumeInput.value = "";
+    updateFileList();
+  });
 }
 
-
-/* ==========================================
-   14. INITIALISE WEBSITE
-========================================== */
-
-function initialiseWebsite() {
-
-    updateFileCount();
-
-    displaySelectedFiles();
-
-    previewSection.hidden = true;
-
-    exportButton.disabled = true;
-
-    console.log("HireScan AI website initialised successfully.");
-
+function addCell(row, value) {
+  const cell = document.createElement("td");
+  cell.textContent = value || "Not available";
+  cell.style.cssText =
+    "padding:12px;border-bottom:1px solid #333;color:#eee;vertical-align:top;";
+  row.appendChild(cell);
 }
 
+function displayResults() {
+  if (!resultsTableBody) return;
 
-initialiseWebsite();
+  resultsTableBody.innerHTML = "";
 
+  screeningResults.sort(
+    (a, b) => b.result.matchScore - a.result.matchScore
+  );
 
-/* ==========================================
-   END OF HIRESCAN AI JAVASCRIPT
-========================================== */
+  screeningResults.forEach((candidate, index) => {
+    const result = candidate.result;
+    const row = document.createElement("tr");
+
+    addCell(row, String(index + 1));
+    addCell(row, result.candidateName);
+    addCell(row, `${result.matchScore}%`);
+    addCell(row, result.screeningStatus);
+    addCell(row, Array.isArray(result.skillsMatch)
+      ? result.skillsMatch.join(", ")
+      : "");
+
+    addCell(row, result.relevantExperience);
+    addCell(row, result.summary);
+
+    resultsTableBody.appendChild(row);
+  });
+
+  if (totalCandidates) {
+    totalCandidates.textContent = screeningResults.length;
+  }
+
+  if (strongMatches) {
+    strongMatches.textContent = screeningResults.filter(
+      item => item.result.matchScore >= 70
+    ).length;
+  }
+
+  if (averageScore) {
+    const average = screeningResults.length
+      ? screeningResults.reduce(
+          (sum, item) => sum + item.result.matchScore, 0
+        ) / screeningResults.length
+      : 0;
+
+    averageScore.textContent = `${average.toFixed(1)}%`;
+  }
+
+  if (exportButton) {
+    exportButton.disabled = screeningResults.length === 0;
+  }
+}
+
+async function screenOneResume(file, jd) {
+  const formData = new FormData();
+  formData.append("jobDescription", jd);
+  formData.append("resume", file);
+
+  const response = await fetch(API_URL, {
+    method: "POST",
+    body: formData
+  });
+
+  const data = await response.json();
+
+  if (!response.ok || !data.success) {
+    throw new Error(data.error || "Screening failed.");
+  }
+
+  return {
+    filename: data.filename,
+    result: data.result
+  };
+}
+
+if (screenButton) {
+  screenButton.addEventListener("click", async () => {
+    const jd = jobDescription?.value.trim();
+
+    if (!jd || jd.length < 30) {
+      showMessage("Please enter a complete job description.", true);
+      return;
+    }
+
+    if (selectedResumes.length === 0) {
+      showMessage("Please upload at least one resume.", true);
+      return;
+    }
+
+    screeningResults = [];
+    displayResults();
+
+    screenButton.disabled = true;
+    screenButton.textContent = "Screening in progress...";
+
+    let completed = 0;
+    const failures = [];
+
+    try {
+      for (const file of selectedResumes) {
+        showMessage(
+          `Analysing ${completed + 1} of ${selectedResumes.length}: ${file.name}`
+        );
+
+        try {
+          const result = await screenOneResume(file, jd);
+          screeningResults.push(result);
+          completed++;
+          displayResults();
+        } catch (error) {
+          failures.push(`${file.name}: ${error.message}`);
+        }
+      }
+
+      displayResults();
+
+      if (failures.length > 0) {
+        showMessage(
+          `${completed} resumes screened. ${failures.length} failed. Check the browser console for details.`,
+          true
+        );
+        console.error("Failed resumes:", failures);
+      } else {
+        showMessage(
+          `Screening complete! ${completed} resumes analysed successfully.`
+        );
+      }
+    } finally {
+      screenButton.disabled = false;
+      screenButton.textContent = "Screen Resumes";
+    }
+  });
+}
+
+if (exportButton) {
+  exportButton.addEventListener("click", () => {
+    if (!screeningResults.length) {
+      showMessage("No screening results to export.", true);
+      return;
+    }
+
+    const columns = [
+      "Rank",
+      "Candidate Name",
+      "Resume File",
+      "Match Score",
+      "Screening Status",
+      "Matching Skills",
+      "Missing Skills",
+      "Relevant Experience",
+      "Education",
+      "Summary"
+    ];
+
+    const rows = screeningResults.map((item, index) => {
+      const r = item.result;
+
+      return [
+        index + 1,
+        r.candidateName,
+        item.filename,
+        r.matchScore,
+        r.screeningStatus,
+        (r.skillsMatch || []).join("; "),
+        (r.missingSkills || []).join("; "),
+        r.relevantExperience,
+        r.education,
+        r.summary
+      ];
+    });
+
+    const csv = [columns, ...rows]
+      .map(row =>
+        row.map(value =>
+          `"${String(value ?? "").replace(/"/g, '""')}"`
+        ).join(",")
+      )
+      .join("\r\n");
+
+    const blob = new Blob(["\uFEFF" + csv], {
+      type: "text/csv;charset=utf-8;"
+    });
+
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+
+    link.href = url;
+    link.download = "HireScan_AI_Results.csv";
+    link.click();
+
+    URL.revokeObjectURL(url);
+  });
+}
+
+const closePreview = document.getElementById("closePreview");
+
+if (closePreview) {
+  closePreview.addEventListener("click", () => {
+    const section = document.getElementById("resumePreviewSection");
+    const viewer = document.getElementById("resumeViewer");
+
+    if (section) section.hidden = true;
+    if (viewer) viewer.src = "about:blank";
+  });
+}
+
+updateFileList();
