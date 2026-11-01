@@ -1,0 +1,364 @@
+
+/* =================================
+   HIRESCAN AI - WEBSITE DESIGN
+   Theme: Black + Neon Green
+================================= */
+
+/* RESET */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+:root {
+    --black: #050505;
+    --card: #101010;
+    --green: #39FF14;
+    --dark-green: #173d13;
+    --white: #ffffff;
+    --grey: #a1a1aa;
+}
+
+html {
+    scroll-behavior: smooth;
+}
+
+body {
+    background: var(--black);
+    color: var(--white);
+    font-family: Arial, Helvetica, sans-serif;
+    line-height: 1.6;
+}
+
+/* NAVIGATION BAR */
+
+.navbar {
+    width: 100%;
+    padding: 22px 8%;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    border-bottom: 1px solid #222;
+    background: #080808;
+}
+
+.logo {
+    font-size: 26px;
+    font-weight: 800;
+    letter-spacing: -1px;
+}
+
+.logo span {
+    color: var(--green);
+}
+
+.nav-label {
+    color: var(--grey);
+    font-size: 11px;
+    letter-spacing: 2px;
+}
+
+/* MAIN CONTAINER */
+
+.container {
+    width: 90%;
+    max-width: 1100px;
+    margin: auto;
+}
+
+/* HERO SECTION */
+
+.hero {
+    text-align: center;
+    padding: 90px 15px 65px;
+}
+
+.tag {
+    display: inline-block;
+    padding: 7px 17px;
+    color: var(--green);
+    background: #10200d;
+    border: 1px solid #285c20;
+    border-radius: 30px;
+    font-size: 12px;
+    letter-spacing: 1px;
+    margin-bottom: 25px;
+}
+
+.hero h1 {
+    font-size: clamp(38px, 6vw, 65px);
+    line-height: 1.15;
+    font-weight: 800;
+    letter-spacing: -2px;
+}
+
+.hero h1 span {
+    color: var(--green);
+    text-shadow: 0 0 25px #39ff1450;
+}
+
+.hero p {
+    max-width: 600px;
+    margin: 22px auto 0;
+    color: var(--grey);
+    font-size: 16px;
+}
+
+/* SCREENING SECTION */
+
+.screening-section {
+    margin-bottom: 65px;
+}
+
+.section-heading {
+    margin-bottom: 22px;
+}
+
+.section-heading h2,
+.results-section h2 {
+    font-size: 26px;
+    margin-bottom: 5px;
+}
+
+.section-heading p,
+.results-section > p {
+    color: var(--grey);
+    font-size: 14px;
+}
+
+/* FORM CARD */
+
+.form-card {
+    background: var(--card);
+    border: 1px solid #252525;
+    border-radius: 15px;
+    padding: 30px;
+}
+
+.form-card label {
+    display: block;
+    font-size: 12px;
+    font-weight: bold;
+    letter-spacing: 1px;
+    margin-bottom: 12px;
+    color: var(--white);
+}
+
+textarea {
+    width: 100%;
+    min-height: 180px;
+    padding: 18px;
+    resize: vertical;
+    background: #080808;
+    border: 1px solid #333;
+    border-radius: 9px;
+    color: var(--white);
+    font-family: inherit;
+    font-size: 14px;
+    outline: none;
+    transition: 0.3s;
+}
+
+textarea:focus {
+    border-color: var(--green);
+    box-shadow: 0 0 12px #39ff1420;
+}
+
+textarea::placeholder {
+    color: #707070;
+}
+
+/* UPLOAD SECTION */
+
+.upload-heading {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 28px;
+}
+
+.upload-heading span {
+    color: var(--grey);
+    font-size: 11px;
+}
+
+.upload-box {
+    display: flex !important;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 190px;
+    padding: 25px;
+    border: 2px dashed #315b28;
+    border-radius: 12px;
+    background: #0b1009;
+    cursor: pointer;
+    transition: 0.3s;
+    text-align: center;
+}
+
+.upload-box:hover {
+    border-color: var(--green);
+    background: #101a0d;
+    box-shadow: 0 0 20px #39ff1415;
+}
+
+.upload-icon {
+    width: 48px;
+    height: 48px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    background: #183413;
+    color: var(--green);
+    font-size: 28px;
+    margin-bottom: 12px;
+}
+
+.upload-box h3 {
+    font-size: 17px;
+    margin-bottom: 5px;
+}
+
+.upload-box p {
+    color: var(--grey);
+    font-size: 13px;
+}
+
+.upload-box input {
+    display: none;
+}
+
+.file-count {
+    margin-top: 12px;
+    color: var(--green);
+    font-size: 13px;
+}
+
+/* SCREENING BUTTON */
+
+.screen-btn {
+    width: 100%;
+    padding: 16px;
+    margin-top: 25px;
+    border: none;
+    border-radius: 9px;
+    background: var(--green);
+    color: #050505;
+    font-size: 16px;
+    font-weight: 800;
+    cursor: pointer;
+    transition: 0.3s;
+}
+
+.screen-btn:hover {
+    background: #65ff45;
+    box-shadow: 0 0 25px #39ff1450;
+    transform: translateY(-2px);
+}
+
+.screen-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    transform: none;
+}
+
+.privacy-note {
+    color: var(--grey);
+    text-align: center;
+    font-size: 12px;
+    margin-top: 15px;
+}
+
+/* RESULTS SECTION */
+
+.results-section {
+    margin-bottom: 80px;
+}
+
+.results-section > p {
+    margin-bottom: 22px;
+}
+
+.empty-state {
+    background: var(--card);
+    border: 1px solid #252525;
+    border-radius: 12px;
+    padding: 45px 20px;
+    text-align: center;
+}
+
+.empty-icon {
+    font-size: 40px;
+    color: var(--green);
+    margin-bottom: 10px;
+}
+
+.empty-state h3 {
+    font-size: 19px;
+}
+
+.empty-state p {
+    color: var(--grey);
+    font-size: 13px;
+    margin-top: 7px;
+}
+
+/* FOOTER */
+
+footer {
+    text-align: center;
+    padding: 25px;
+    border-top: 1px solid #222;
+    color: var(--grey);
+    font-size: 12px;
+}
+
+/* MOBILE RESPONSIVE DESIGN */
+
+@media (max-width: 600px) {
+
+    .navbar {
+        padding: 17px 5%;
+    }
+
+    .logo {
+        font-size: 22px;
+    }
+
+    .nav-label {
+        font-size: 8px;
+        letter-spacing: 1px;
+    }
+
+    .container {
+        width: 92%;
+    }
+
+    .hero {
+        padding: 65px 5px 45px;
+    }
+
+    .hero h1 {
+        letter-spacing: -1px;
+    }
+
+    .hero p {
+        font-size: 14px;
+    }
+
+    .form-card {
+        padding: 18px;
+    }
+
+    .section-heading h2,
+    .results-section h2 {
+        font-size: 22px;
+    }
+
+    .upload-box {
+        min-height: 160px;
+    }
+}
