@@ -1,0 +1,98 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HireScan AI | Resume Screening</title>
+    <meta name="description" content="AI-powered resume screening and candidate matching platform.">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <header class="navbar">
+        <div class="logo">HireScan<span> AI</span></div>
+        <div class="nav-label">SMART RECRUITMENT PLATFORM</div>
+    </header>
+
+    <main class="container">
+
+        <section class="hero">
+            <div class="tag">✦ AI POWERED RECRUITMENT</div>
+            <h1>Find the right talent.<br>
+                <span>Faster with AI.</span>
+            </h1>
+            <p>
+                Screen resumes, match candidates with job descriptions
+                and discover the right talent in less time.
+            </p>
+        </section>
+
+        <section class="screening-section">
+
+            <div class="section-heading">
+                <h2>Resume Screening</h2>
+                <p>Start by entering your job requirements.</p>
+            </div>
+
+            <div class="form-card">
+                <label for="jobDescription">JOB DESCRIPTION</label>
+
+                <textarea
+                    id="jobDescription"
+                    placeholder="Paste your job description here...&#10;&#10;Example: HR Recruiter with 0-2 years of experience. Required skills: Recruitment, sourcing, resume screening, Boolean search and interview coordination."
+                ></textarea>
+
+                <div class="upload-heading">
+                    <label for="resumeFiles">UPLOAD CANDIDATE RESUMES</label>
+                    <span>PDF / DOCX</span>
+                </div>
+
+                <label class="upload-box" for="resumeFiles">
+                    <div class="upload-icon">↑</div>
+                    <h3>Upload your resumes</h3>
+                    <p>Click here to select multiple PDF or DOCX files</p>
+                    <input
+                        type="file"
+                        id="resumeFiles"
+                        accept=".pdf,.docx"
+                        multiple
+                    >
+                </label>
+
+                <p id="fileCount" class="file-count">
+                    No resumes selected
+                </p>
+
+                <button id="screenButton" class="screen-btn">
+                    ✦ Screen Resumes
+                </button>
+
+                <p class="privacy-note">
+                    Your candidates deserve privacy. Resume data will
+                    be processed securely.
+                </p>
+            </div>
+        </section>
+
+        <section class="results-section">
+            <h2>Screening Results</h2>
+            <p>Your candidate analysis will appear here.</p>
+            <div id="results">
+                <div class="empty-state">
+                    <div class="empty-icon">⌕</div>
+                    <h3>Waiting for candidates</h3>
+                    <p>Enter a job description and upload resumes to begin.</p>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <footer>
+        <p>© 2026 HireScan AI | AI-Powered Recruitment</p>
+    </footer>
+
+    <script src="script.js"></script>
+</body>
+</html>
