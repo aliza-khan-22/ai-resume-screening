@@ -10,13 +10,7 @@ const allowedOrigins = [
   "https://ai-resume-screening-liart.vercel.app"
 ];
 
-module.exports.config = {
-  api: {
-    bodyParser: false
-  }
-};
-
-module.exports = async function handler(req, res) {
+async function handler(req, res) {
   const origin = req.headers.origin;
 
   if (allowedOrigins.includes(origin)) {
@@ -32,8 +26,12 @@ module.exports = async function handler(req, res) {
   }
 
   if (req.method !== "POST") {
-    return res.status(405).json({ error: "Method not allowed." });
+    return res.status(405).json({
+      error: "Method not allowed."
+    });
   }
+
+  let uploadedPath;
 
   try {
     if (!process.env.OPENAI_API_KEY) {
@@ -45,6 +43,7 @@ module.exports = async function handler(req, res) {
     const form = formidable({
       maxFiles: 1,
       maxFileSize: 4 * 1024 * 1024,
+      maxTotalFileSize: 4 * 1024 * 1024,
       multiples: false,
       keepExtensions: true
     });
@@ -59,7 +58,10 @@ module.exports = async function handler(req, res) {
       ? files.resume[0]
       : files.resume;
 
-    if (!jobDescription || jobDescription.trim().length < 30) {
+    if (
+      typeof jobDescription !== "string" ||
+      jobDescription.trim().length < 30
+    ) {
       return res.status(400).json({
         error: "Please provide a complete job description."
       });
@@ -71,22 +73,29 @@ module.exports = async function handler(req, res) {
       });
     }
 
+    uploadedPath = uploaded.filepath;
+
     const filename = uploaded.originalFilename || "resume";
     const extension = filename.toLowerCase().split(".").pop();
-    const buffer = await fs.readFile(uploaded.filepath);
+
+    if (!["pdf", "docx"].includes(extension)) {
+      return res.status(400).json({
+        error: "Only PDF and DOCX resumes are supported."
+      });
+    }
+
+    const buffer = await fs.readFile(uploadedPath);
 
     let resumeText = "";
 
     if (extension === "pdf") {
       const pdfData = await pdfParse(buffer);
       resumeText = pdfData.text;
-    } else if (extension === "docx") {
-      const docxData = await mammoth.extractRawText({ buffer });
-      resumeText = docxData.value;
     } else {
-      return res.status(400).json({
-        error: "Only PDF and DOCX resumes are supported."
+      const docxData = await mammoth.extractRawText({
+        buffer
       });
+      resumeText = docxData.value;
     }
 
     if (!resumeText || resumeText.trim().length < 50) {
@@ -101,7 +110,9 @@ module.exports = async function handler(req, res) {
 
     const completion = await openai.chat.completions.create({
       model: "gpt-4o-mini",
-      response_format: { type: "json_object" },
+      response_format: {
+        type: "json_object"
+      },
       messages: [
         {
           role: "system",
@@ -123,7 +134,11 @@ Return valid JSON with these fields:
 
 Give a score from 0 to 100 based on job-related skills, relevant experience, education and responsibilities.
 
-Use evidence from the resume. Do not invent qualifications or experience. Do not judge candidates using age, gender, religion, caste, disability, marital status, photograph, or other personal characteristics. Missing information must not automatically mean the candidate lacks that qualification.
+Use evidence from the resume. Do not invent qualifications or experience.
+
+Do not judge candidates using age, gender, religion, caste, disability, marital status, photograph, or other personal characteristics.
+
+Missing information must not automatically mean the candidate lacks that qualification.
 
 Use these status ranges:
 70-100: Strong Match
@@ -134,14 +149,17 @@ The score is an aid for human review, not an automatic hiring decision.`
         },
         {
           role: "user",
-          content: `JOB DESCRIPTION:\n${jobDescription.slice(0, 12000)}\n\nRESUME:\n${resumeText.slice(0, 25000)}`
+          content:
+            `JOB DESCRIPTION:\n${jobDescription.slice(0, 12000)}\n\n` +
+            `RESUME:\n${resumeText.slice(0, 25000)}`
         }
       ]
     });
 
-    const result = JSON.parse(
-      completion.choices[0].message.content
-    );
+    const responseText =
+      completion.choices[0].message.content;
+
+    const result = JSON.parse(responseText);
 
     result.matchScore = Math.max(
       0,
@@ -160,5 +178,22 @@ The score is an aid for human review, not an automatic hiring decision.`
     return res.status(500).json({
       error: "Screening failed. Please check the file and try again."
     });
+
+  } finally {
+    if (uploadedPath) {
+      try {
+        await fs.unlink(uploadedPath);
+      } catch (cleanupError) {
+        console.error("Temporary file cleanup failed.");
+      }
+    }
+  }
+}
+
+module.exports = handler;
+
+module.exports.config = {
+  api: {
+    bodyParser: false
   }
 };
