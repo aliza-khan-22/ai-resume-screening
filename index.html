@@ -1,98 +1,376 @@
 
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>HireScan AI | Resume Screening</title>
-    <meta name="description" content="AI-powered resume screening and candidate matching platform.">
+
+    <title>HireScan AI | Smart Resume Screening</title>
+
+    <meta name="description"
+        content="AI-powered resume screening platform for recruiters. Compare candidate resumes with job descriptions.">
+
     <link rel="stylesheet" href="style.css">
 </head>
+
 <body>
 
+    <!-- NAVIGATION BAR -->
+
     <header class="navbar">
-        <div class="logo">HireScan<span> AI</span></div>
-        <div class="nav-label">SMART RECRUITMENT PLATFORM</div>
+
+        <div class="logo">
+            HireScan<span> AI</span>
+        </div>
+
+        <div class="nav-label">
+            SMART RECRUITMENT PLATFORM
+        </div>
+
     </header>
+
 
     <main class="container">
 
+        <!-- HERO SECTION -->
+
         <section class="hero">
-            <div class="tag">✦ AI POWERED RECRUITMENT</div>
-            <h1>Find the right talent.<br>
+
+            <div class="tag">
+                ✦ AI POWERED RECRUITMENT
+            </div>
+
+            <h1>
+                Find the right talent.
+                <br>
                 <span>Faster with AI.</span>
             </h1>
+
             <p>
-                Screen resumes, match candidates with job descriptions
-                and discover the right talent in less time.
+                Screen up to 100 resumes, compare candidates
+                with job requirements and discover the right talent.
             </p>
+
         </section>
+
+
+        <!-- JOB DESCRIPTION SECTION -->
 
         <section class="screening-section">
 
             <div class="section-heading">
-                <h2>Resume Screening</h2>
-                <p>Start by entering your job requirements.</p>
+
+                <h2>01. Job Description</h2>
+
+                <p>
+                    Enter the job requirements for candidate screening.
+                </p>
+
             </div>
 
+
             <div class="form-card">
-                <label for="jobDescription">JOB DESCRIPTION</label>
+
+                <label for="jobDescription">
+                    JOB DESCRIPTION
+                </label>
 
                 <textarea
                     id="jobDescription"
-                    placeholder="Paste your job description here...&#10;&#10;Example: HR Recruiter with 0-2 years of experience. Required skills: Recruitment, sourcing, resume screening, Boolean search and interview coordination."
+                    placeholder="Paste your complete Job Description here...
+
+Example:
+Position: HR Recruiter
+Experience: 0-2 years
+Required Skills: Recruitment, Candidate Sourcing, Resume Screening, Boolean Search, ATS and Interview Coordination.
+
+Responsibilities:
+Source candidates, screen resumes, conduct initial interviews and coordinate the recruitment process."
                 ></textarea>
 
+
                 <div class="upload-heading">
-                    <label for="resumeFiles">UPLOAD CANDIDATE RESUMES</label>
+
+                    <label for="resumeFiles">
+                        UPLOAD CANDIDATE RESUMES
+                    </label>
+
                     <span>PDF / DOCX</span>
+
                 </div>
 
+
+                <!-- RESUME UPLOAD AREA -->
+
                 <label class="upload-box" for="resumeFiles">
-                    <div class="upload-icon">↑</div>
+
+                    <div class="upload-icon">
+                        ↑
+                    </div>
+
                     <h3>Upload your resumes</h3>
-                    <p>Click here to select multiple PDF or DOCX files</p>
+
+                    <p>
+                        Click to browse or select multiple files.
+                    </p>
+
+                    <p class="upload-limit">
+                        Maximum 100 resumes per screening session
+                    </p>
+
                     <input
                         type="file"
                         id="resumeFiles"
-                        accept=".pdf,.docx"
+                        accept=".pdf,.docx,application/pdf,application/vnd.openxmlformats-officedocument.wordprocessingml.document"
                         multiple
                     >
+
                 </label>
 
-                <p id="fileCount" class="file-count">
-                    No resumes selected
-                </p>
 
-                <button id="screenButton" class="screen-btn">
+                <!-- UPLOAD COUNT -->
+
+                <div class="upload-status">
+
+                    <p id="fileCount">
+                        0 / 100 resumes selected
+                    </p>
+
+                    <p id="uploadMessage" role="status"></p>
+
+                </div>
+
+
+                <!-- SELECTED RESUME LIST -->
+
+                <div id="selectedFiles" class="selected-files">
+
+                    <!-- JavaScript will display uploaded filenames here -->
+
+                </div>
+
+
+                <!-- SCREENING BUTTON -->
+
+                <button
+                    type="button"
+                    id="screenButton"
+                    class="screen-btn"
+                >
                     ✦ Screen Resumes
                 </button>
 
+
                 <p class="privacy-note">
-                    Your candidates deserve privacy. Resume data will
-                    be processed securely.
+                    Candidate information should be handled securely.
+                    Files will not be permanently stored by the frontend.
                 </p>
+
             </div>
+
         </section>
 
+
+        <!-- SCREENING RESULTS -->
+
         <section class="results-section">
-            <h2>Screening Results</h2>
-            <p>Your candidate analysis will appear here.</p>
-            <div id="results">
-                <div class="empty-state">
-                    <div class="empty-icon">⌕</div>
-                    <h3>Waiting for candidates</h3>
-                    <p>Enter a job description and upload resumes to begin.</p>
-                </div>
+
+            <div class="section-heading">
+
+                <h2>02. Screening Results</h2>
+
+                <p>
+                    View candidate scores, skills and experience analysis.
+                </p>
+
             </div>
+
+
+            <!-- RESULT SUMMARY -->
+
+            <div class="summary-cards">
+
+                <div class="summary-card">
+
+                    <p>Total Candidates</p>
+
+                    <h3 id="totalCandidates">0</h3>
+
+                </div>
+
+
+                <div class="summary-card">
+
+                    <p>Strong Matches</p>
+
+                    <h3 id="strongMatches">0</h3>
+
+                </div>
+
+
+                <div class="summary-card">
+
+                    <p>Average Match Score</p>
+
+                    <h3 id="averageScore">0%</h3>
+
+                </div>
+
+            </div>
+
+
+            <!-- CANDIDATE TABLE -->
+
+            <div class="results-table-container">
+
+                <table class="results-table">
+
+                    <thead>
+
+                        <tr>
+
+                            <th>Rank</th>
+
+                            <th>Candidate</th>
+
+                            <th>Match Score</th>
+
+                            <th>Skills Match</th>
+
+                            <th>Experience</th>
+
+                            <th>Screening Status</th>
+
+                            <th>Action</th>
+
+                        </tr>
+
+                    </thead>
+
+
+                    <tbody id="resultsTableBody">
+
+                        <tr>
+
+                            <td colspan="7" class="empty-message">
+
+                                <div class="empty-icon">⌕</div>
+
+                                <h3>Waiting for candidates</h3>
+
+                                <p>
+                                    Enter a Job Description and upload
+                                    resumes to begin screening.
+                                </p>
+
+                            </td>
+
+                        </tr>
+
+                    </tbody>
+
+                </table>
+
+            </div>
+
+
+            <!-- EXPORT REPORT -->
+
+            <div class="export-section">
+
+                <button
+                    type="button"
+                    id="exportButton"
+                    class="export-btn"
+                    disabled
+                >
+                    ↓ Export Excel Report
+                </button>
+
+            </div>
+
+        </section>
+
+
+        <!-- RESUME PREVIEW SECTION -->
+
+        <section id="resumePreviewSection" class="preview-section" hidden>
+
+            <div class="section-heading">
+
+                <h2>03. Resume Preview</h2>
+
+                <p>
+                    Review the candidate's original resume
+                    without leaving this website.
+                </p>
+
+            </div>
+
+
+            <div class="preview-card">
+
+                <div class="preview-header">
+
+                    <div>
+
+                        <h3 id="previewFileName">
+                            Candidate Resume
+                        </h3>
+
+                        <p id="previewCandidateScore">
+                            Match Score
+                        </p>
+
+                    </div>
+
+
+                    <button
+                        type="button"
+                        id="closePreview"
+                        class="close-preview"
+                    >
+                        ✕ Close
+                    </button>
+
+                </div>
+
+
+                <!-- PDF OR DOCX PREVIEW -->
+
+                <div id="resumeViewer" class="resume-viewer">
+
+                    <p>
+                        Select View Resume to preview a candidate's file.
+                    </p>
+
+                </div>
+
+            </div>
+
         </section>
 
     </main>
 
+
+    <!-- FOOTER -->
+
     <footer>
-        <p>© 2026 HireScan AI | AI-Powered Recruitment</p>
+
+        <p>
+            © 2026 HireScan AI |
+            AI-Powered Recruitment Screening
+        </p>
+
     </footer>
 
+
+    <!-- JAVASCRIPT CONNECTION -->
+
     <script src="script.js"></script>
+
 </body>
+
 </html>
+
